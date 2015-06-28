@@ -1,0 +1,151 @@
+﻿@using Chat.Models
+@model MyDbContext
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Chat</title>
+    <script src="http://code.jquery.com/jquery-1.8.0.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            window.setInterval(RefreshPage, 2000, null);
+
+            function RefreshPage() {
+                $.ajax({
+                    url: "@Url.Action("GetCurrentRoom", "ChatRoom")",
+                    type: "GET",
+                    success: function (data) { $("#chRoom").empty().html(data); }
+                })
+
+                $.ajax({
+                    url: "@Url.Action("GetSideBar", "ChatRoom")",
+                    type: "GET",
+                success: function (data) { $("#sideBar").empty().html(data); }
+            })
+
+            }
+
+
+            document.getElementById('taNewMsg').onkeypress = function CheckForEnter(event) {
+                if (event.keyCode == 13)//Pressed Enter
+                {
+                    if (document.getElementById('cbxEnterSend').checked == true) {
+                        SendCurrentMessage();
+                    }
+                }
+            }
+
+            document.getElementById('taNewMsg').onfocus = function clearTextArea() {
+                if (document.getElementById('taNewMsg').value == "Enter New Message...") {
+                    document.getElementById('taNewMsg').value = "";
+                }
+            }
+
+            document.getElementById('taNewMsg').onblur = function taLostFocus() {
+                if (document.getElementById('taNewMsg').value == "") {
+                    document.getElementById('taNewMsg').value = "Enter New Message...";
+                }
+            }
+
+
+            document.getElementById('btnSendMsg').onclick = function SendMessage() {
+
+                SendCurrentMessage();
+
+            };
+
+            window.onbeforeunload = doLogout;
+            function doLogout(e) {
+             
+            }
+
+            function SendCurrentMessage() {
+                var message = document.getElementById('taNewMsg').value;
+
+                $.ajax({
+                    url: "@Url.Action("SendMessage", "ChatRoom")",
+                    data: { msg: message },
+                    dataType: "html",
+                    success: function () { location.reload(true); }
+                });
+
+                document.getElementById('taNewMsg').value = "Enter New Message...";
+
+            }
+        });
+
+    </script>
+    
+</head>
+<body id="mBody" style="background-color:darkred; vertical-align:central; margin: 0 auto" onbeforeunload="doLogout">
+    <div id="mainDiv" style="vertical-align: central; margin: 0 auto; margin-left:auto; margin-right:auto; width:900px">
+
+        <div>
+            @foreach (ChatRoomUser user in Model.users)
+            {
+                if ((int)Session["userid"] == user.Id)
+                {
+                    <div style="border:2px solid black; background-color:silver">
+                        <table>
+                            <tr>
+                                <td>
+                                    <img width="80" height="80" src="@user.PicUrl" style="margin-left:50px"/>
+                                </td>
+                                <td>
+                                    <h2 style="margin-right:300px">@user.FirstName @user.LastName</h2>
+                                </td>
+                                <td>
+                                    @Html.Partial("MyLayout")
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                }
+            }
+
+        </div>
+
+        <table>
+            <tr>
+                <td>
+                    @if (Model.currentRoom != null)
+                    {
+                        <div id="chRoom" style="border:2px solid black; background-color:darkgray">
+                            @Html.Partial("ChatRoom", Model)
+                        </div>
+                    }
+                </td>
+                <td>
+                    <div id="sideBar" style="border:2px solid black; background-color:silver">
+                        @Html.Partial("SideBar", Model)
+                    </div>
+                </td>
+            </tr>
+            @if (Model.currentRoom != null)
+            {
+                <tr>
+                    <td>
+                        <div style="border:2px solid black; background-color:silver">
+                            <textarea id="taNewMsg" spellcheck="true" style="background-color:whitesmoke; border:medium; width:595px" rows="3" onkeypress="CheckForEnter" onfocus="clearTextArea" onblur="taLostFocus">Enter New Message...</textarea>
+                            <div>
+                                <button id="btnSendMsg" value="Send Message" onclick="SendMessage">Send Message</button>
+                                <input id="cbxEnterSend" type="checkbox" value="Enter Sends Message" checked="checked" />Enter Sends Message
+                            </div>
+                            <div>
+                                @Html.ActionLink("Load Earlier Messages...", "LoadEarlierMessages", "ChatRoom", new { roomId = Model.currentRoom.id }, null)
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </table>
+
+    </div>
+</body>
+</html>

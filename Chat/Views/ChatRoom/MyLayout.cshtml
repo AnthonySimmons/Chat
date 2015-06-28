@@ -1,0 +1,26 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+</head>
+<body>
+    <div style="background-color:silver; align-content:center; text-align:center">
+        <table>
+            <tr>
+                <td><h3 style="margin-right:20px">@Html.ActionLink("Account", "Edit", "Home")</h3></td>
+                <td><h3 style="margin-right:20px">@Html.ActionLink("Logout", "Logout", "Home")</h3></td>
+                @if((bool)Session["isadmin"] == true)
+                { 
+                    <td><h3 style="margin-right:20px">@Html.ActionLink("Admin", "Index", "Home")</h3></td>
+                }
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

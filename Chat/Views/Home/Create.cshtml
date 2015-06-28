@@ -1,0 +1,160 @@
+﻿@using Chat.Models
+@using Chat
+@model ChatRoomUser
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Create</title>
+
+    <!-- Including these three files will allow MVC to validate the Model's properties without need for postback -->
+    <script type="text/javascript" src="~/Scripts/jquery-2.1.0.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.8.0.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            document.getElementById('pic0').onclick = function clickPic() {
+                sendPicUrl(0);
+            }
+            document.getElementById('pic1').onclick = function clickPic() {
+                sendPicUrl(1);
+            }
+            document.getElementById('pic2').onclick = function clickPic() {
+                sendPicUrl(2);
+            }
+            document.getElementById('pic3').onclick = function clickPic() {
+                sendPicUrl(3);
+            }
+            document.getElementById('pic4').onclick = function clickPic() {
+                sendPicUrl(4);
+            }
+
+
+            function sendPicUrl(num) {
+
+                var picUrl = document.getElementById('PicUrl');
+                var i = 0;
+
+                for (i = 0; i < 5; i++) {
+                    document.getElementById('pic' + i.toString()).style.border = "0px";
+                }
+
+                picUrl.value = "/Content/Images/pic" + num.toString() + ".png";
+                document.getElementById('pic' + num.toString()).style.border = "5px solid red";
+                document.getElementById('currentPic').src = picUrl.value;
+            }
+
+            document.getElementById('fileSelect').onchange = function uploadPic() {
+
+                for (i = 0; i < 5; i++) {
+                    document.getElementById('pic' + i.toString()).style.border = "0px";
+                }
+                var val = document.getElementById('fileSelect').value;
+                document.getElementById('PicUrl').value = val;
+                document.getElementById('currentPic').src = val;
+
+            }
+
+
+            document.getElementById('btnPicFromUrl').onclick = function selectPicFromUrl() {
+                var url = window.prompt("Enter Picture Url: ");
+                document.getElementById('PicUrl').value = url;
+                document.getElementById('currentPic').src = url;
+            }
+
+        });
+    </script>
+
+
+
+
+</head>
+<body style="background-color:darkred">
+    <div style="width:400px; margin:0 auto; border:3px solid black; background-color:silver">
+        <!-- Html.BeginForm() is similar to the <form> tag, but allows us to dynamically adjust form variables. -->
+        @Html.ActionLink("Login as User", "Login")
+        @if (Model.Email != null && Model.Email != "")
+        {
+            @Html.ActionLink("Delete Account", "DeleteAccount", new { id = Model.Id }, null)
+        }
+        @using (Html.BeginForm())
+        {
+            <table>
+                <tr>
+                    <!-- Html.LabelFor / EditorFor / ValidationMessageFor is the MVC way to build
+                        form elements without having to worry about specific input types.  Very handy.
+                        -->
+                    <td>@Html.LabelFor(m => m.Email)</td>
+                    <td>@Html.EditorFor(m => m.Email)</td>
+                    <td>@Html.ValidationMessageFor(m => m.Email)</td>
+                </tr>
+                <tr>
+                    <td>@Html.LabelFor(m => m.FirstName)</td>
+                    <td>@Html.EditorFor(m => m.FirstName)</td>
+                    <td>@Html.ValidationMessageFor(m => m.FirstName)</td>
+                </tr>
+                <tr>
+                    <td>@Html.LabelFor(m => m.LastName)</td>
+                    <td>@Html.EditorFor(m => m.LastName)</td>
+                    <td>@Html.ValidationMessageFor(m => m.LastName)</td>
+                </tr>
+                <tr>
+                    <td>@Html.LabelFor(m => m.Password)</td>
+                    <td>@Html.EditorFor(m => m.Password)</td>
+                    <td>@Html.ValidationMessageFor(m => m.Password)</td>
+                </tr>
+                <tr>
+                    <td style="display:none">@Html.EditorFor(m => m.PicUrl)</td>
+                </tr>
+            </table>
+            <input type="submit" value="Create User" style="background-color:silver" />
+        }
+        <table id="picSelect">
+            <tr>
+                <td>
+                    <h4>Current Pic:</h4>
+                    <img width="70" height="70" id="currentPic" src="@Model.PicUrl"/>
+                </td>
+            </tr>
+            <tr>Select Profile Image: </tr>
+            <tr>
+                @for (int i = 0; i < 5; i++)
+                {
+                    string picId = "pic" + i.ToString();
+                    string url = "/Content/Images/pic" + i.ToString() + ".png";
+                    if (Model.PicUrl.Length > 18)
+                    {
+                        if (i.ToString() == Model.PicUrl[19].ToString())
+                        {
+                            <td>
+                                <img onclick="clickPic" id=@picId src=@url style="border:5px solid red" />
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                <img onclick="clickPic" id=@picId src=@url style="border:0px" />
+                            </td>
+                        }
+                    }
+                    else
+                    {
+                        <td>
+                            <img onclick="clickPic" id=@picId src=@url style="border:0px" />
+                        </td>
+                    }
+                }
+
+        </table>
+        <input type="file" id="fileSelect" onchange="uploadPic" value="Upload File"/>
+        <input type="button" id="btnPicFromUrl" onclick="selectPicFromUrl" value="Load From Url"/>
+    </div>
+</body>
+</html>

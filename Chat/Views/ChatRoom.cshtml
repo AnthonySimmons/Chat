@@ -1,0 +1,32 @@
+﻿@using Chat.Models
+@model ChatRoom
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Chat Room</title>
+    <script>
+        $(document).ready(function () {
+            alert('ready');
+            
+        });
+    </script>
+</head>
+<body>
+    <div>
+        <h2>@Model.name</h2>
+        <textarea id="chatArea" cols="300" rows="500">
+           @foreach(ChatMessage mes in Model.messages)
+           {
+                <text>@mes.Author.User.UserName.ToString() + @mes.MessageDate.ToShortDateString() + " " + @mes.MessageDate.ToShortTimeString() + "\n\t" + @mes.Message</text>
+           }
+
+        </textarea>
+    </div>
+</body>
+</html>

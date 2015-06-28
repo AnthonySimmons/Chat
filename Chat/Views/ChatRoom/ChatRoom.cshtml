@@ -1,0 +1,96 @@
+﻿@using Chat.Models
+@model MyDbContext
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Chat Room</title>
+    <script src="http://code.jquery.com/jquery-1.8.0.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            
+            var area = document.getElementById('chatArea');
+
+            
+            
+            var het = @Session["ScrollHeight"].ToString()
+            area.scrollTop = parseInt(het, 0);
+        
+
+            area.onscroll = function divScroll() {
+                //Session["ScrollHeight"] = area.scrollTop;
+                $.ajax({
+                    url: "@Url.Action("SetScroll", "ChatRoom")",
+                    data: { ht: area.scrollTop },
+                    dataType: "html"
+                //success: function () { location.reload(true); }
+                });
+
+            }
+
+        });
+    </script>
+
+</head>
+<body style="background-color:darkred">
+    <div>
+        @if (Model != null)
+        {
+            if (Model.currentRoom != null)
+            {
+                <h2 style="text-align:center">@Model.currentRoom.name</h2>
+                <div id="chatArea" onscroll="divScroll" style="background-color:silver; border:medium; height:350px; width:inherit; overflow:auto">
+                    <div id="innerChRoom">
+                        <table>
+                            @if (Model.messages != null)
+                            {
+                                int count = 0;
+                                foreach (ChatMessage mes in Model.messages)
+                                {
+                                    if (mes.RoomId == Model.currentRoom.id)
+                                    {
+                                        count++;
+                                        if (Model.currentRoom.messageCount < Model.currentRoom.maxMessages
+                                         && Model.messages.Count() - count < Model.currentRoom.maxMessages)
+                                        {
+                                            string msgId = "msg" + Model.currentRoom.messageCount.ToString();
+                                            if (Model.currentRoom.messageCount == Model.currentRoom.maxMessages)
+                                            {
+                                                msgId = "msgLast";
+                                                <tr><td>Last</td></tr>
+                                            }
+                                            Model.currentRoom.messageCount++;
+                                            <tr id=@msgId>
+                                                <td>
+                                                    @foreach (ChatRoomUser user in Model.users)
+                                                    {
+                                                        if (user.Id == mes.AuthorId)
+                                                        {
+                                                            <img height="70" width="65" src="@user.PicUrl" />
+                                                        }
+                                                    }
+                                                </td>
+                                                <td style="border:2px solid blue">
+                                                    <h5 style="color:blue; margin:0.1em">@mes.AuthorName</h5>
+                                                    <h5 style="margin:0.1em">@mes.MessageDate.ToShortDateString()  @mes.MessageDate.ToShortTimeString()</h5>
+                                                    <h5 style="margin:0.3em">@mes.Message</h5>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                }
+                            }
+                        </table>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</body>
+</html>

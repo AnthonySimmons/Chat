@@ -1,0 +1,75 @@
+﻿@using Chat.Models
+@model MyDbContext
+@{
+    Layout = null;
+}
+
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <script src="http://code.jquery.com/jquery-1.8.0.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            document.getElementById('btnCreateRoom').onclick = function clickCreateRoom() {
+                var name = window.prompt('Enter Chat Room Name: ');
+
+                $.ajax({
+                    url: "@Url.Action("CreateRoom", "ChatRoom")",
+                    data: { nm: name },
+                    dataType: "html",
+                    success: function () { location.reload(true); }
+                });
+
+            };
+        });
+
+    </script>
+
+</head>
+
+<body style="background-color:darkred; border:3px solid black">
+    <div>
+        <h2 style="text-align:center">Available Rooms</h2>
+        <form>
+            <button type="button" id="btnCreateRoom" onclick="clickCreateRoom" value="Create New Room">Create New Room</button>
+        </form>
+        <table>
+            @foreach (ChatRoom cr in Model.chatRooms)
+            {
+                <tr>
+                    <td>@cr.name</td>
+                    @if (cr.isCurrent == false)
+                    {
+                        <td>@Html.ActionLink("Join", "JoinRoom", "ChatRoom", new { id = cr.id }, null)</td>
+                    }
+                    <td>@Html.ActionLink("Remove", "RemoveRoom", "ChatRoom", new { id = cr.id }, null)</td>
+                </tr>
+                if (cr.isCurrent == true)
+                {
+                    foreach (ChatRoomUser user in Model.users)
+                    {
+                        if(user.rid == cr.id)
+                        { 
+                            <tr>
+                                <td>
+                                    <img src="@user.PicUrl" style="width:40px; height:40px" />
+                                </td>
+                                <td>
+                                    <div>
+                                        @user.FirstName @user.LastName
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                }
+            }
+        </table>
+    </div>
+</body>
+</html>
